@@ -20,7 +20,7 @@ public class Spawner : MonoBehaviour
             return null;
         }
     }
-    public Shape SpawnerShape() // lặp lại ca **
+    public Shape SpawnerShape() // lặp lại các shape
     {
         Shape shape = null; // tạo biến shape
         shape = Instantiate(GetRandomShape(), transform.position, Quaternion.identity) as Shape; // tạo shape 
