@@ -29,7 +29,7 @@ public class Board : MonoBehaviour
 
     bool IsWithinBoard(int x, int y) // kiểm tra giới hạn của board 
     {
-        return (x >= 0 && x <= m_width && y >= 0);
+        return (x >= 0 && x < m_width && y >= 0 );
     }
 
     bool IsOccupied(int x, int y, Shape shape)
@@ -79,19 +79,19 @@ public class Board : MonoBehaviour
 
     }
 
-    //public void StoreShapeInGrid(Shape shape)
-    //{
-    //    if (shape == null)
-    //    {
-    //        return;
-    //    }
+    public void StoreShapeInGrid(Shape shape) //Check vaf shape chồng shape
+    {
+        if (shape == null)
+        {
+            return;
+        }
 
-    //    foreach (Transform child in shape.transform)
-    //    {
-    //        Vector2 pos = Vectorf.Round(child.position);
-    //        m_grid[(int)pos.x, (int)pos.y] = child;
-    //    }
-    //}
+        foreach (Transform child in shape.transform)
+        {
+            Vector2 pos = Vectorf.Round(child.position);
+            m_grid[(int)pos.x, (int)pos.y] = child;
+        }
+    }
 
 
 

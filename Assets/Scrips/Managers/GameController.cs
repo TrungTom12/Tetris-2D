@@ -13,7 +13,7 @@ public class GameController : MonoBehaviour
     float m_timeToDrop;
 
     float m_timeToNextKey;
-   // [Range(0.02f, 1f)]
+    [Range(0.02f, 1f)]
     public float m_keyRepeatRate = 0.25f;
     
     void Start()
@@ -64,27 +64,26 @@ public class GameController : MonoBehaviour
             }
         }
 
-        //else 
-        //if (Input.GetButton("MoveLeft") && (Time.time > m_timeToNextKey) || Input.GetButtonDown("MoveLeft"))
-        //{
-        //    m_activeShape.MoveLeft();
-        //    m_timeToNextKey = Time.time + m_keyRepeatRate;
+        else if (Input.GetButton("MoveLeft") && (Time.time > m_timeToNextKey) || Input.GetButtonDown("MoveLeft"))
+        {
+            m_activeShape.MoveLeft();
+            m_timeToNextKey = Time.time + m_keyRepeatRate;
 
-        //    if (!m_gameBoard.InValidPosition(m_activeShape))
-        //    {
-        //        m_activeShape.MoveRight();
-        //    }
-        //}
+            if (!m_gameBoard.InValidPosition(m_activeShape))
+            {
+                m_activeShape.MoveRight();
+            }
+        }           
 
-        //else if (Input.GetButtonDown("Rotate") && (Time.time > m_timeToNextKey))
-        //{
-        //    m_activeShape.RotateRight();
-        //    m_timeToNextKey = Time.time + m_keyRepeatRate;
-        //    if (!m_gameBoard.InValidPosition(m_activeShape))
-        //    {
-        //        m_activeShape.RotateLeft();
-        //    }
-        //}
+        else if (Input.GetButtonDown("Rotate") && (Time.time > m_timeToNextKey))
+        {
+            m_activeShape.RotateRight();
+            m_timeToNextKey = Time.time + m_keyRepeatRate;
+            if (!m_gameBoard.InValidPosition(m_activeShape))
+            {
+                m_activeShape.RotateLeft();
+            }
+        }
 
         else if (Input.GetButton("MoveDown") && (Time.time > m_timeToNextKey) || (Time.time > m_timeToDrop)) //Khi shape chạm đến đáy board sẽ dừng lại 
         {
@@ -107,7 +106,7 @@ public class GameController : MonoBehaviour
     { 
         m_timeToNextKey = Time.time;
         m_activeShape.MoveUp();
-        //m_gameBoard.StoreShapeInGrid(m_activeShape);
+        m_gameBoard.StoreShapeInGrid(m_activeShape);
         m_activeShape = m_spawner.SpawnerShape(); // tạo lại shape sau khi đã hoàn thành xong DK
         //m_gameBoard.CleanAllRows(); // xóa hàng cuối
     }
