@@ -9,18 +9,46 @@ public class GameController : MonoBehaviour
     Spawner m_spawner;
     Shape m_activeShape;
 
-    float m_dropInterval = 0.5f;
+    public float m_dropInterval = 0.2f;
     float m_timeToDrop;
 
-    float m_timeToNextKey;
+    //float m_timeToNextKey;
+    //[Range(0.02f, 1f)]
+    //public float m_keyRepeatRate = 0.25f;
+
+    // KHai bao rieng tie cua tung huong
+
+    float m_timeToNextKeyLeftRight;
     [Range(0.02f, 1f)]
-    public float m_keyRepeatRate = 0.25f;
-    
+    public float m_keyRepeatRateLeftRight = 0.15f;
+
+    float m_timeToNextKeyDown;
+    [Range(0.01f, 1f)]
+    public float m_keyRepeatRateDown = 0.01f;
+
+    float m_timeToNextKeyRotate;
+    [Range(0.02f, 1f)]
+    public float m_keyRepeatRateRotate = 0.10f;
+
+    bool m_gameOver = false;
+
+    public GameObject m_gameOverPanel;
+
+    //Sound Manager
+    SoundManager m_soundManager;
+
     void Start()
     {
-        // khởi tạo thông qua Tag 
+        // find spawner and board with GameObject.FindWithTag plus GetComponent; make sure tag your object correctly
+        // find spawner and board with generic version of GameObject.FindObjectOfTyp, slower but less typing 
         m_gameBoard = GameObject.FindObjectOfType<Board>();
         m_spawner = GameObject.FindObjectOfType<Spawner>();
+        m_soundManager = GameObject.FindObjectOfType<SoundManager>();
+
+        m_timeToNextKeyLeftRight = Time.time + m_keyRepeatRateLeftRight;
+        m_timeToNextKeyDown = Time.time + m_keyRepeatRateDown;
+        m_timeToNextKeyRotate = Time.time + m_keyRepeatRateRotate;
+
 
         if (!m_gameBoard)
         {
@@ -30,6 +58,10 @@ public class GameController : MonoBehaviour
         {
             Debug.LogWarning("WARNING! There is no spawner defined");
         }
+        if (!m_soundManager)
+        {
+            Debug.LogWarning("Warning! There is no soundManager defined");
+        }
         else // tạo shape và lặp lại tại vị trí đó 
         {
             m_spawner.transform.position = Vectorf.Round(m_spawner.transform.position);
@@ -37,13 +69,21 @@ public class GameController : MonoBehaviour
             {
                 m_activeShape = m_spawner.SpawnerShape();
             }
-            
         }
+
+        if (m_gameOverPanel)
+        {
+            m_gameOverPanel.SetActive(false);
+        }
+
+
+
+
     }
 
     void Update()
     {
-        if (!m_gameBoard || !m_spawner || !m_activeShape)
+        if (!m_gameBoard || !m_spawner || !m_activeShape || m_gameOver ||!m_soundManager)
         {
             return;
         }
@@ -53,71 +93,139 @@ public class GameController : MonoBehaviour
 
     private void PlayerInput() // Điều khiển sử dụng tap || hold để di chuyển trái phải 
     {
-        if (Input.GetButton("MoveRight") && (Time.time > m_timeToNextKey) || Input.GetButtonDown("MoveRight"))
+        if (Input.GetButton("MoveRight") && (Time.time > m_timeToNextKeyLeftRight) || Input.GetButtonDown("MoveRight"))
         {
             m_activeShape.MoveRight();
-            m_timeToNextKey = Time.time + m_keyRepeatRate;
+            m_timeToNextKeyLeftRight = Time.time + m_keyRepeatRateLeftRight;
+
+            
 
             if (!m_gameBoard.InValidPosition(m_activeShape))
             {
                 m_activeShape.MoveLeft();
+                PlaySound(m_soundManager.m_errorSound,0.5f);
+            }   
+            else
+            {
+                PlaySound(m_soundManager.m_moveSound,0.5f);  //chạy âm thanh khi di chuyển 
             }
         }
 
-        else if (Input.GetButton("MoveLeft") && (Time.time > m_timeToNextKey) || Input.GetButtonDown("MoveLeft"))
+        else if (Input.GetButton("MoveLeft") && (Time.time > m_timeToNextKeyLeftRight ) || Input.GetButtonDown("MoveLeft"))
         {
             m_activeShape.MoveLeft();
-            m_timeToNextKey = Time.time + m_keyRepeatRate;
+            m_timeToNextKeyLeftRight = Time.time + m_keyRepeatRateLeftRight;
+
+         
 
             if (!m_gameBoard.InValidPosition(m_activeShape))
             {
                 m_activeShape.MoveRight();
+                PlaySound(m_soundManager.m_errorSound, 0.5f);
+            }
+            else
+            {
+                PlaySound(m_soundManager.m_moveSound, 0.5f);  //chạy âm thanh khi di chuyển 
             }
         }           
 
-        else if (Input.GetButtonDown("Rotate") && (Time.time > m_timeToNextKey))
+        else if (Input.GetButtonDown("Rotate") && (Time.time > m_timeToNextKeyRotate))
         {
             m_activeShape.RotateRight();
-            m_timeToNextKey = Time.time + m_keyRepeatRate;
+            m_timeToNextKeyRotate = Time.time + m_keyRepeatRateRotate;
+
+
             if (!m_gameBoard.InValidPosition(m_activeShape))
             {
                 m_activeShape.RotateLeft();
+                PlaySound(m_soundManager.m_errorSound, 0.5f);
+            }
+            else
+            {
+                PlaySound(m_soundManager.m_moveSound, 0.5f);  //chạy âm thanh khi di chuyển 
             }
         }
 
-        else if (Input.GetButton("MoveDown") && (Time.time > m_timeToNextKey) || (Time.time > m_timeToDrop)) //Khi shape chạm đến đáy board sẽ dừng lại 
+        else if (Input.GetButton("MoveDown") && (Time.time > m_timeToNextKeyDown) || (Time.time > m_timeToDrop)) //Khi shape chạm đến đáy board sẽ dừng lại 
         {
             //
-            m_timeToNextKey = Time.time + m_keyRepeatRate;
+            m_timeToNextKeyDown = Time.time + m_keyRepeatRateDown;
             // khởi tạo thời gian rơi = thời gian trong 1 fram + thời gian thả 
             m_timeToDrop = Time.time + m_dropInterval;
             // Sau khi shape di chuyển xuống dưới cùng của board , vào hàm mà t/m khớp thì moveup 
             m_activeShape.MoveDown();
+
+            //PLaySound();
+
             if (!m_gameBoard.InValidPosition(m_activeShape))
             {
+                if (m_gameBoard.IsOverLimit(m_activeShape))
+                {
+                    GameOver();
+                }
+                else  
+                {
                     LandShape();
+                }
+
             }
         }
 
+
+    }
+
+    void PlaySound(AudioClip clip , float volMultiplier)
+    {
+        if (clip && m_soundManager.m_fxEnabled) // Xử lý âm thanh khi di chuyển trái || phải || lên || xuống 
+        {
+            AudioSource.PlayClipAtPoint(clip, Camera.main.transform.position, Mathf.Clamp(m_soundManager.m_fxVolume * volMultiplier, 0.05f, 1f));
+        }
+    }
+
+    private void GameOver()
+    {
+        m_activeShape.MoveUp();
+        m_gameOver = true;
+        Debug.LogWarning(m_activeShape.name + " is over the limit ");
+
+        if (m_gameOverPanel)
+        {
+            m_gameOverPanel.SetActive(true);
+        }
+
+        PlaySound(m_soundManager.m_dropSound, 0.75f); //chạy âm thanh khi di chuyển 
+        // set the gameOver condition to true
+        m_gameOver = true;
 
     }
 
     private void LandShape()
     { 
-        m_timeToNextKey = Time.time;
+        m_timeToNextKeyLeftRight = Time.time;
+        m_timeToNextKeyDown = Time.time;
+        m_timeToNextKeyRotate = Time.time;
+
+        PlaySound(m_soundManager.m_dropSound, 0.75f);  //chạy âm thanh khi di chuyển 
+
         m_activeShape.MoveUp();
         m_gameBoard.StoreShapeInGrid(m_activeShape);
         m_activeShape = m_spawner.SpawnerShape(); // tạo lại shape sau khi đã hoàn thành xong DK
-        //m_gameBoard.CleanAllRows(); // xóa hàng cuối
+        
+        m_gameBoard.ClearAllRows(); // xóa hàng cuối
+
+        if (m_soundManager.m_fxEnabled && m_soundManager.m_dropSound) // Xử lý âm thanh khi drop shape
+        {
+            AudioSource.PlayClipAtPoint(m_soundManager.m_dropSound, Camera.main.transform.position, m_soundManager.m_fxVolume);
+        }
     }
-    
-    //void Restart()
-    //{
-    //    Debug.Log("Restarted");
-    //    Application.LoadLevel(Application.loadedLevel);
-    //} 
+
+    public void Restart()
+    {
+        Debug.Log("Restarted");
+        Application.LoadLevel(Application.loadedLevel);
+    }
 
 
 
-  
+
 }

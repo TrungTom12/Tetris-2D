@@ -11,6 +11,7 @@ public class Board : MonoBehaviour
     int m_heightAndWidth;
 
     Transform[,] m_grid;
+    private int m_header;
 
     void Awake()
     {
@@ -95,62 +96,77 @@ public class Board : MonoBehaviour
 
 
 
-    //bool IsComplete(int y)
-    //{
-    //    for (int x = 0; x < m_width; ++x)
-    //    {
-    //        if (m_grid[x,y] == null)
-    //        {
-    //            return false;
-    //        }
-    //    }
-    //    return true;
-    //}
+    bool IsComplete(int y)
+    {
+        for (int x = 0; x < m_width; ++x)
+        {
+            if (m_grid[x, y] == null)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 
-    //void CleanRow(int y)
-    //{
-    //    for (int x = 0; x < m_width; x++)
-    //    {
-    //        if (m_grid[x,y] != null)
-    //        {
-    //            Destroy(m_grid[x, y].gameObject);
-    //        }
-    //    }
-    //    m_grid= null;
-    //}
+    void ClearRow(int y)
+    {
+        for (int x = 0; x < m_width; ++x)
+        {
+            if (m_grid[x, y] != null)
+            {
+                Destroy(m_grid[x, y].gameObject);
+            }
+            m_grid = null;
+        }
+    }
 
-    //void ShiftOneRowDown(int y)
-    //{
-    //    for (int x = 0; x < m_width; x++)
-    //    {
-    //        if (m_grid[x, y] != null)
-    //        {
-    //            m_grid[x, y - 1] = m_grid[x, y];
-    //            m_grid[x, y] = null;
-    //            m_grid[x, y - 1].position += new Vector3(0, -1, 0);
-    //        }   
-    //    }
-    //}
+    void ShiftOneRowDown(int y)
+    {
+        for (int x = 0; x < m_width; ++x)
+        {
+            if (m_grid[x, y] != null)
+            {
+                m_grid[x, y - 1] = m_grid[x, y];
+                m_grid[x, y] = null;
+                m_grid[x, y - 1].position += new Vector3(0, -1, 0);
+            }
+        }
+    }
 
-    //void ShiftRowDown(int StartY)
-    //{
-    //    for (int i = 0; i < m_width; i++)
-    //    {
-    //        ShiftOneRowDown(i);
-    //    }
-    //}
+    void ShiftRowsDown(int startY)
+    {
+        for (int i = startY; i < m_height; ++i)
+        {
+            ShiftOneRowDown(i);
+        }
+    }
 
-    //public void CleanAllRows()
-    //{
-    //    for (int y = 0; y < m_width; ++y)
-    //    {
-    //        if (IsComplete(y))
-    //        {
-    //            CleanRow(y);
-    //            ShiftRowDown(y+1);
-    //            y--;
-    //        }
-    //    }
-    //}
+    public void ClearAllRows()
+    {
+        for (int y = 0; y < m_height; ++y)
+        {
+            if (IsComplete(y))
+            {
+                ClearRow(y);
+                ShiftRowsDown(y + 1);
+                y--;
+            }
+        }
+    }
+
+
+
+    public bool IsOverLimit(Shape shape)
+    {
+        foreach (Transform child in shape.transform)
+        {
+            if (child.transform.position.y >= (m_height - m_header - 1))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }
+ 
