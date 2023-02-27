@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 54a59047295085744b82139df79ace88
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - Blues Smile
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 34b57a7d03b930f46aaa31afc2d64b1e, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -13,7 +13,7 @@ public class SoundManager : MonoBehaviour
     [Range(0, 1)]
     public float m_fxVolume = 1.0f;
 
-    public AudioClip m_cleanRowSound;
+    public AudioClip m_clearRowSound;
 
     public AudioClip m_moveSound;
 
@@ -29,12 +29,18 @@ public class SoundManager : MonoBehaviour
     public AudioClip[] m_musicClips;
 
     AudioClip m_randomMusicClip;
+
     private AudioClip randomClip;
 
     public AudioClip m_errorSound;
-    
-    //private bool musicClip;
 
+    public AudioClip[] m_vocalClips;
+
+    public AudioClip m_gameOverVocalClips;
+    
+
+
+    //private bool musicClip;
     void Start()
     {
         m_randomMusicClip = GetRandomClip(m_musicClips);

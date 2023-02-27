@@ -8,6 +8,8 @@ public class GameController : MonoBehaviour
     Board m_gameBoard;
     Spawner m_spawner;
     Shape m_activeShape;
+    SoundManager m_soundManager;
+    ScoreManager m_scoreManager;
 
     public float m_dropInterval = 0.2f;
     float m_timeToDrop;
@@ -33,9 +35,7 @@ public class GameController : MonoBehaviour
     bool m_gameOver = false;
 
     public GameObject m_gameOverPanel;
-
-    //Sound Manager
-    SoundManager m_soundManager;
+    
 
     void Start()
     {
@@ -44,6 +44,7 @@ public class GameController : MonoBehaviour
         m_gameBoard = GameObject.FindObjectOfType<Board>();
         m_spawner = GameObject.FindObjectOfType<Spawner>();
         m_soundManager = GameObject.FindObjectOfType<SoundManager>();
+        m_scoreManager = GameObject.FindObjectOfType<ScoreManager>();
 
         m_timeToNextKeyLeftRight = Time.time + m_keyRepeatRateLeftRight;
         m_timeToNextKeyDown = Time.time + m_keyRepeatRateDown;
@@ -61,6 +62,10 @@ public class GameController : MonoBehaviour
         if (!m_soundManager)
         {
             Debug.LogWarning("Warning! There is no soundManager defined");
+        }
+        if (!m_scoreManager)
+        {
+            Debug.Log("Warning! There is no scoreManager Defined");
         }
         else // tạo shape và lặp lại tại vị trí đó 
         {
@@ -83,7 +88,7 @@ public class GameController : MonoBehaviour
 
     void Update()
     {
-        if (!m_gameBoard || !m_spawner || !m_activeShape || m_gameOver ||!m_soundManager)
+        if (!m_gameBoard || !m_spawner || !m_activeShape || m_gameOver ||!m_soundManager ||!m_scoreManager)
         {
             return;
         }
@@ -155,7 +160,7 @@ public class GameController : MonoBehaviour
             // Sau khi shape di chuyển xuống dưới cùng của board , vào hàm mà t/m khớp thì moveup 
             m_activeShape.MoveDown();
 
-            //PLaySound();
+            //PlaySound(m_soundManager.m_dropSound, 0.75f); //chạy âm thanh khi di chuyển 
 
             if (!m_gameBoard.InValidPosition(m_activeShape))
             {
@@ -193,9 +198,11 @@ public class GameController : MonoBehaviour
             m_gameOverPanel.SetActive(true);
         }
 
-        PlaySound(m_soundManager.m_dropSound, 0.75f); //chạy âm thanh khi di chuyển 
+        PlaySound(m_soundManager.m_gameOverSound, 5f);
+        PlaySound(m_soundManager.m_gameOverVocalClips, 5f);
+
+        //PlaySound(m_soundManager.m_dropSound, 0.75f); //chạy âm thanh khi di chuyển 
         // set the gameOver condition to true
-        m_gameOver = true;
 
     }
 
@@ -213,10 +220,22 @@ public class GameController : MonoBehaviour
         
         m_gameBoard.ClearAllRows(); // xóa hàng cuối
 
-        if (m_soundManager.m_fxEnabled && m_soundManager.m_dropSound) // Xử lý âm thanh khi drop shape
+        //if (m_soundManager.m_fxEnabled && m_soundManager.m_dropSound) // Xử lý âm thanh khi drop shape
+        //{
+        //    AudioSource.PlayClipAtPoint(m_soundManager.m_dropSound, Camera.main.transform.position, m_soundManager.m_fxVolume);
+        //}
+
+        if (m_gameBoard.m_completedRows > 0)
         {
-            AudioSource.PlayClipAtPoint(m_soundManager.m_dropSound, Camera.main.transform.position, m_soundManager.m_fxVolume);
+            m_scoreManager.ScoreLines(m_gameBoard.m_completedRows); // lay cach tinh diem 
+
+            if (m_gameBoard.m_completedRows > 1)
+            {
+                AudioClip randomVoval = m_soundManager.GetRandomClip(m_soundManager.m_vocalClips);
+                PlaySound(randomVoval,0f);
+            }
         }
+        PlaySound(m_soundManager.m_clearRowSound, 0f); // 
     }
 
     public void Restart()

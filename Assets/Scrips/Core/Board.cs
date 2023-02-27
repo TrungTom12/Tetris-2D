@@ -1,39 +1,40 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Board : MonoBehaviour
 {
-    public Transform  m_emptySprite;
+    public Transform m_emptySprite;
 
-    public int m_height = 22;
+    public int m_height = 30;
     public int m_width = 10;
+    public int m_header = 8;
+
     int m_heightAndWidth;
 
     Transform[,] m_grid;
-    private int m_header;
+
+    public int m_completedRows = 0;
 
     void Awake()
     {
-        m_grid = new Transform[m_width, m_height];    
+        m_grid = new Transform[m_width, m_height];
     }
+
     void Start()
     {
         DrawEmptyCells();
     }
 
-   
     void Update()
     {
-        
+
     }
 
     bool IsWithinBoard(int x, int y) // kiểm tra giới hạn của board 
     {
-        return (x >= 0 && x < m_width && y >= 0 );
+        return (x >= 0 && x < m_width && y >= 0);
     }
 
-    bool IsOccupied(int x, int y, Shape shape)
+    bool IsOccupied(int x, int y, Shape shape) // kiểm tra vị trí hiện tại đã có shape chưa 
     {
         return (m_grid[x, y] != null && m_grid[x, y].parent != shape.transform);
     }
@@ -49,7 +50,7 @@ public class Board : MonoBehaviour
                 return false;
             }
 
-            if (IsOccupied((int)pos.x,(int) pos.y,shape))
+            if (IsOccupied((int)pos.x, (int)pos.y, shape))
             {
                 return false;
             }
@@ -62,7 +63,7 @@ public class Board : MonoBehaviour
     {
         if (m_emptySprite != null)
         {
-            for (int y = 0; y < m_height; y++)
+            for (int y = 0; y < m_height - m_header; y++)
             {
                 for (int x = 0; x < m_width; x++)
                 {
@@ -80,7 +81,7 @@ public class Board : MonoBehaviour
 
     }
 
-    public void StoreShapeInGrid(Shape shape) //Check vaf shape chồng shape
+    public void StoreShapeInGrid(Shape shape) // Lưu shape tại vị trí trên board
     {
         if (shape == null)
         {
@@ -96,7 +97,7 @@ public class Board : MonoBehaviour
 
 
 
-    bool IsComplete(int y)
+    bool IsComplete(int y) // Kiểm tra hoàn thiện của hàng ngang
     {
         for (int x = 0; x < m_width; ++x)
         {
@@ -108,19 +109,20 @@ public class Board : MonoBehaviour
         return true;
     }
 
-    void ClearRow(int y)
+    void ClearRow(int y) // Xóa hàng
     {
         for (int x = 0; x < m_width; ++x)
         {
             if (m_grid[x, y] != null)
             {
                 Destroy(m_grid[x, y].gameObject);
+                Debug.Log("Đã xóa !!!");
             }
             m_grid = null;
         }
     }
 
-    void ShiftOneRowDown(int y)
+    void ShiftOneRowDown(int y) // Chuyển xuống 1 hàng 
     {
         for (int x = 0; x < m_width; ++x)
         {
@@ -133,7 +135,7 @@ public class Board : MonoBehaviour
         }
     }
 
-    void ShiftRowsDown(int startY)
+    void ShiftRowsDown(int startY) // Chuyển xuống nhiều hàng
     {
         for (int i = startY; i < m_height; ++i)
         {
@@ -141,12 +143,13 @@ public class Board : MonoBehaviour
         }
     }
 
-    public void ClearAllRows()
+    public void ClearAllRows() // Xóa các hàng đã hoàn thiện 
     {
         for (int y = 0; y < m_height; ++y)
         {
             if (IsComplete(y))
             {
+                m_completedRows++;
                 ClearRow(y);
                 ShiftRowsDown(y + 1);
                 y--;
@@ -156,7 +159,7 @@ public class Board : MonoBehaviour
 
 
 
-    public bool IsOverLimit(Shape shape)
+    public bool IsOverLimit(Shape shape) // Kiểm tra vượt quá giới hạn
     {
         foreach (Transform child in shape.transform)
         {
@@ -164,9 +167,9 @@ public class Board : MonoBehaviour
             {
                 return true;
             }
+            //Debug.Log(" vuot qua gioi hạn !!!");
         }
         return false;
     }
 
 }
- 
