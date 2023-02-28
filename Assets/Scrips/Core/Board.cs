@@ -31,7 +31,7 @@ public class Board : MonoBehaviour
 
     bool IsWithinBoard(int x, int y) // kiểm tra giới hạn của board 
     {
-        return (x >= 0 && x < m_width && y >= 0);
+        return (x >= 0 && x < m_width && y >= 0); // xem kĩ lại
     }
 
     bool IsOccupied(int x, int y, Shape shape) // kiểm tra vị trí hiện tại đã có shape chưa 
@@ -105,7 +105,9 @@ public class Board : MonoBehaviour
             {
                 return false;
             }
+            
         }
+        Debug.Log("Đủ");
         return true;
     }
 
@@ -118,7 +120,7 @@ public class Board : MonoBehaviour
                 Destroy(m_grid[x, y].gameObject);
                 Debug.Log("Đã xóa !!!");
             }
-            m_grid = null;
+            m_grid[x,y] = null;
         }
     }
 
