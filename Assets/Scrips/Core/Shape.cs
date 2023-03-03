@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -48,6 +48,17 @@ public class Shape : MonoBehaviour
         }
     }
 
+
+    public void RotateClockwise (bool clockwise) 
+    {
+        if (clockwise)
+        {
+            RotateRight();
+        }else
+        {
+            RotateLeft();
+        }
+    }
 
 
     void Start()

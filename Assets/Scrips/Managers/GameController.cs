@@ -35,6 +35,11 @@ public class GameController : MonoBehaviour
     bool m_gameOver = false;
 
     public GameObject m_gameOverPanel;
+
+    //Toggle button
+    public IconToggle m_rotateToggle;
+
+    bool m_clockwise = true;
     
 
     void Start()
@@ -136,7 +141,8 @@ public class GameController : MonoBehaviour
 
         else if (Input.GetButtonDown("Rotate") && (Time.time > m_timeToNextKeyRotate))
         {
-            m_activeShape.RotateRight();
+            //m_activeShape.RotateRight();  
+            m_activeShape.RotateClockwise(m_clockwise);
             m_timeToNextKeyRotate = Time.time + m_keyRepeatRateRotate;
 
 
@@ -172,10 +178,13 @@ public class GameController : MonoBehaviour
                 {
                     LandShape();
                 }
-
             }
+   
         }
-
+        else if (Input.GetButtonDown("RotateChange"))
+        {
+            ToogleRotDirection();
+        }
 
     }
 
@@ -244,7 +253,14 @@ public class GameController : MonoBehaviour
         Application.LoadLevel(Application.loadedLevel);
     }
 
-
+    public void ToogleRotDirection()
+    {
+        m_clockwise = !m_clockwise;
+        if (m_rotateToggle)
+        {
+            m_rotateToggle.Toggle(m_clockwise);
+        }
+    }
 
 
 }
