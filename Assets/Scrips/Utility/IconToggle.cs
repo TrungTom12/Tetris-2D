@@ -21,7 +21,7 @@ public class IconToggle : MonoBehaviour
 
     } 
 
-    public void Toggle (bool state)
+    public void Toggle (bool state) //// 
     {
         if (!m_image || !m_iconTrue || !m_iconFalse)
         {

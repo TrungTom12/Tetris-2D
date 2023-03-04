@@ -40,6 +40,12 @@ public class GameController : MonoBehaviour
     public IconToggle m_rotateToggle;
 
     bool m_clockwise = true;
+      
+    public bool m_isPaused = false;
+
+    public GameObject m_pausePanel;
+
+
     
 
     void Start()
@@ -84,6 +90,11 @@ public class GameController : MonoBehaviour
         if (m_gameOverPanel)
         {
             m_gameOverPanel.SetActive(false);
+        }
+
+        if (m_pausePanel)
+        {
+            m_pausePanel.SetActive(false);
         }
 
 
@@ -181,9 +192,17 @@ public class GameController : MonoBehaviour
             }
    
         }
-        else if (Input.GetButtonDown("RotateChange"))
+        else if (Input.GetButtonDown("RotateChange")) // Gán trực tiếp nút Rotate
         {
             ToogleRotDirection();
+        }
+        else if (Input.GetButtonDown("Pause")) // Gán trực tiếp nút Pause
+        {
+            TogglePause();
+        }
+        else if (Input.GetButtonDown("Restart"))
+        {
+            Restart();
         }
 
     }
@@ -249,11 +268,16 @@ public class GameController : MonoBehaviour
 
     public void Restart()
     {
+        Time.timeScale = 1f;
         Debug.Log("Restarted");
         Application.LoadLevel(Application.loadedLevel);
     }
 
-    public void ToogleRotDirection()
+
+
+
+
+    public void ToogleRotDirection() // gán vào button Rotate 
     {
         m_clockwise = !m_clockwise;
         if (m_rotateToggle)
@@ -261,6 +285,28 @@ public class GameController : MonoBehaviour
             m_rotateToggle.Toggle(m_clockwise);
         }
     }
+
+    public void TogglePause()
+    {
+        if (m_gameOver)
+        {
+            return;
+        }
+
+        m_isPaused = !m_isPaused;
+
+        if (m_pausePanel)
+        {
+            m_pausePanel.SetActive(m_isPaused);
+
+            if (m_soundManager)
+            {
+                m_soundManager.m_musicSource.volume = (m_isPaused) ? m_soundManager.m_musicVolume * 0.25f : m_soundManager.m_musicVolume;
+            }
+            Time.timeScale = (m_isPaused) ? 0: 1;
+        }
+    }
+
 
 
 }
