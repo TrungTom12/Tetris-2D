@@ -147,6 +147,8 @@ public class Board : MonoBehaviour
 
     public void ClearAllRows() // Xóa các hàng đã hoàn thiện 
     {
+        m_completedRows = 0; //neu khong co dong nay se lien tiep ++ diem
+
         for (int y = 0; y < m_height; ++y)
         {
             if (IsComplete(y))

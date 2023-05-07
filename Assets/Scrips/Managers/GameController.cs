@@ -11,7 +11,9 @@ public class GameController : MonoBehaviour
     SoundManager m_soundManager;
     ScoreManager m_scoreManager;
 
-    public float m_dropInterval = 0.2f;
+    public float m_dropInterval = 0.1f;
+    float m_dropIntervalModded;
+
     float m_timeToDrop;
 
     //float m_timeToNextKey;
@@ -97,7 +99,7 @@ public class GameController : MonoBehaviour
             m_pausePanel.SetActive(false);
         }
 
-
+        m_dropIntervalModded = m_dropInterval;
 
 
     }
@@ -112,9 +114,9 @@ public class GameController : MonoBehaviour
     }
 
 
-    private void PlayerInput() // Điều khiển sử dụng tap || hold để di chuyển trái phải 
+    private void PlayerInput() // Điều khiển sử dụng tap || hold các nút để di chuyển trái phải 
     {
-        if (Input.GetButton("MoveRight") && (Time.time > m_timeToNextKeyLeftRight) || Input.GetButtonDown("MoveRight"))
+        if ((Input.GetButton("MoveRight") && (Time.time > m_timeToNextKeyLeftRight)) || Input.GetButtonDown("MoveRight"))
         {
             m_activeShape.MoveRight();
             m_timeToNextKeyLeftRight = Time.time + m_keyRepeatRateLeftRight;
@@ -132,7 +134,7 @@ public class GameController : MonoBehaviour
             }
         }
 
-        else if (Input.GetButton("MoveLeft") && (Time.time > m_timeToNextKeyLeftRight ) || Input.GetButtonDown("MoveLeft"))
+        else if ((Input.GetButton("MoveLeft") && (Time.time > m_timeToNextKeyLeftRight )) || Input.GetButtonDown("MoveLeft"))
         {
             m_activeShape.MoveLeft();
             m_timeToNextKeyLeftRight = Time.time + m_keyRepeatRateLeftRight;
@@ -168,8 +170,9 @@ public class GameController : MonoBehaviour
             }
         }
 
-        else if (Input.GetButton("MoveDown") && (Time.time > m_timeToNextKeyDown) || (Time.time > m_timeToDrop)) //Khi shape chạm đến đáy board sẽ dừng lại 
+        else if ((Input.GetButton("MoveDown") && (Time.time > m_timeToNextKeyDown)) || (Time.time > m_timeToDrop)) //Khi shape chạm đến đáy board sẽ dừng lại 
         {
+            m_timeToDrop = Time.time + m_dropIntervalModded;
             //
             m_timeToNextKeyDown = Time.time + m_keyRepeatRateDown;
             // khởi tạo thời gian rơi = thời gian trong 1 fram + thời gian thả 
@@ -218,7 +221,7 @@ public class GameController : MonoBehaviour
     private void GameOver()
     {
         m_activeShape.MoveUp();
-        m_gameOver = true;
+        
         Debug.LogWarning(m_activeShape.name + " is over the limit ");
 
         if (m_gameOverPanel)
@@ -231,6 +234,7 @@ public class GameController : MonoBehaviour
 
         //PlaySound(m_soundManager.m_dropSound, 0.75f); //chạy âm thanh khi di chuyển 
         // set the gameOver condition to true
+        m_gameOver = true;
 
     }
 
@@ -240,8 +244,7 @@ public class GameController : MonoBehaviour
         m_timeToNextKeyDown = Time.time;
         m_timeToNextKeyRotate = Time.time;
 
-        PlaySound(m_soundManager.m_dropSound, 0.75f);  //chạy âm thanh khi di chuyển 
-
+        
         m_activeShape.MoveUp();
         m_gameBoard.StoreShapeInGrid(m_activeShape);
         m_activeShape = m_spawner.SpawnerShape(); // tạo lại shape sau khi đã hoàn thành xong DK
@@ -253,17 +256,35 @@ public class GameController : MonoBehaviour
         //    AudioSource.PlayClipAtPoint(m_soundManager.m_dropSound, Camera.main.transform.position, m_soundManager.m_fxVolume);
         //}
 
+        PlaySound(m_soundManager.m_dropSound, 0.5f);  //chạy âm thanh khi di chuyển 
+
         if (m_gameBoard.m_completedRows > 0)
         {
             m_scoreManager.ScoreLines(m_gameBoard.m_completedRows); // lay cach tinh diem 
 
-            if (m_gameBoard.m_completedRows > 1)
+            if (m_scoreManager.m_didLeveUp)
             {
-                AudioClip randomVoval = m_soundManager.GetRandomClip(m_soundManager.m_vocalClips);
-                PlaySound(randomVoval,0f);
+                //Xóa 1 hoặc nhiều hàng và tăng cấp
+                PlaySound(m_soundManager.m_levelUpVocalClip,0f);
+                Debug.Log("Xóa 1 hoặc nhiều hàng và tăng cấp");
+                m_dropIntervalModded = Mathf.Clamp(m_dropInterval - (((float) m_scoreManager.m_level - 1) * 0.1f),0.05f,1f);
             }
+            else
+            {
+                if (m_gameBoard.m_completedRows > 1)
+                {
+                    //Xóa nhiều hơn 1 hàng
+                    AudioClip randomVocal = m_soundManager.GetRandomClip(m_soundManager.m_vocalClips);
+                    PlaySound(randomVocal, 40f);
+                    Debug.Log("Xóa nhiều hơn 1 hàng");
+                }
+            }
+
+            //Xóa 1 hàng 
+            PlaySound(m_soundManager.m_clearRowSound, 3f);
+            Debug.Log("Xóa 1 hàng");
         }
-        PlaySound(m_soundManager.m_clearRowSound, 0f); // 
+        //PlaySound(m_soundManager.m_clearRowSound, 3f); // 
     }
 
     public void Restart()

@@ -7,15 +7,21 @@ public class ScoreManager : MonoBehaviour
 {
     int m_score = 0;
     int m_line;
-    int m_level = 1;
+    public int m_level = 1;
 
     public int m_linePerLevel = 5;
 
     const int m_minLines = 1;
     const int m_maxLines = 4;
 
+    public Text m_lineText;
+    public Text m_levelText;
+    public Text m_scoreText;
+
+    public bool m_didLeveUp = false; 
     public void ScoreLines(int n)
     {
+        m_didLeveUp= false;
          n = Mathf.Clamp(n, m_minLines,m_maxLines);
 
         switch (n)
@@ -34,12 +40,23 @@ public class ScoreManager : MonoBehaviour
                 break;
 
         }
+        m_line -= n;
+
+        if (m_line <= 0)
+        {
+            LevelUp();
+        }
+
+        UpdateUIText();
+        
     }
 
     public void Reset()
     {
         m_level = 1;
         m_line = m_linePerLevel * m_level;
+
+        UpdateUIText() ;
     }
 
     // Start is called before the first frame update
@@ -48,4 +65,39 @@ public class ScoreManager : MonoBehaviour
         Reset();
     }
 
+    void UpdateUIText()
+    {
+        if (m_lineText)
+        {
+            m_lineText.text = m_line.ToString();
+        }
+
+        if (m_levelText)
+        {
+            m_levelText.text = m_level.ToString();
+        }
+
+        if (m_scoreText)
+        {
+            m_scoreText.text = PadZero(m_score, 5);//m_score.ToString();
+        }
+    }
+
+    string PadZero(int n , int padDigits)
+    {
+        string nStr = n.ToString();
+
+        while (nStr.Length < padDigits)
+        {
+            nStr = "0" + nStr;
+        }
+        return nStr;
+    }
+
+    public void LevelUp()
+    {
+        m_level++;
+        m_line = m_linePerLevel * m_level;
+        m_didLeveUp = true;
+    }
 }

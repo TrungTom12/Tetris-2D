@@ -22,6 +22,8 @@ public class SoundManager : MonoBehaviour
 
     public AudioClip m_gameOverSound;
 
+    public AudioClip m_levelUpVocalClip;
+
     //public AudioClip m_backgroundMusic;
 
     public AudioSource m_musicSource;
