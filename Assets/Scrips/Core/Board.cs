@@ -58,7 +58,7 @@ public class Board : MonoBehaviour
         return true;
     }
 
-
+    
     void DrawEmptyCells() // Tạo Bảng game 
     {
         if (m_emptySprite != null)

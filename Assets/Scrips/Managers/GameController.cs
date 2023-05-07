@@ -10,6 +10,7 @@ public class GameController : MonoBehaviour
     Shape m_activeShape;
     SoundManager m_soundManager;
     ScoreManager m_scoreManager;
+    Ghost m_ghost;
 
     public float m_dropInterval = 0.1f;
     float m_dropIntervalModded;
@@ -58,6 +59,7 @@ public class GameController : MonoBehaviour
         m_spawner = GameObject.FindObjectOfType<Spawner>();
         m_soundManager = GameObject.FindObjectOfType<SoundManager>();
         m_scoreManager = GameObject.FindObjectOfType<ScoreManager>();
+        m_ghost = GameObject .FindObjectOfType<Ghost>();    
 
         m_timeToNextKeyLeftRight = Time.time + m_keyRepeatRateLeftRight;
         m_timeToNextKeyDown = Time.time + m_keyRepeatRateDown;
@@ -106,13 +108,17 @@ public class GameController : MonoBehaviour
 
     void Update()
     {
-        if (!m_gameBoard || !m_spawner || !m_activeShape || m_gameOver ||!m_soundManager ||!m_scoreManager)
+        if (!m_ghost ||!m_gameBoard || !m_spawner || !m_activeShape || m_gameOver ||!m_soundManager ||!m_scoreManager)
         {
             return;
         }
         PlayerInput();
     }
 
+    void LateUpdate()
+    {
+        m_ghost.DrawGhost(m_activeShape, m_gameBoard);
+    }
 
     private void PlayerInput() // Điều khiển sử dụng tap || hold các nút để di chuyển trái phải 
     {
@@ -251,6 +257,11 @@ public class GameController : MonoBehaviour
         
         m_gameBoard.ClearAllRows(); // xóa hàng cuối
 
+        if (m_ghost)
+        {
+            m_ghost.Reset();
+        }
+
         //if (m_soundManager.m_fxEnabled && m_soundManager.m_dropSound) // Xử lý âm thanh khi drop shape
         //{
         //    AudioSource.PlayClipAtPoint(m_soundManager.m_dropSound, Camera.main.transform.position, m_soundManager.m_fxVolume);
@@ -265,7 +276,7 @@ public class GameController : MonoBehaviour
             if (m_scoreManager.m_didLeveUp)
             {
                 //Xóa 1 hoặc nhiều hàng và tăng cấp
-                PlaySound(m_soundManager.m_levelUpVocalClip,0f);
+                PlaySound(m_soundManager.m_levelUpVocalClip,4f);
                 Debug.Log("Xóa 1 hoặc nhiều hàng và tăng cấp");
                 m_dropIntervalModded = Mathf.Clamp(m_dropInterval - (((float) m_scoreManager.m_level - 1) * 0.1f),0.05f,1f);
             }
@@ -296,7 +307,7 @@ public class GameController : MonoBehaviour
 
 
 
-
+    //Button
 
     public void ToogleRotDirection() // gán vào button Rotate 
     {
@@ -322,7 +333,7 @@ public class GameController : MonoBehaviour
 
             if (m_soundManager)
             {
-                m_soundManager.m_musicSource.volume = (m_isPaused) ? m_soundManager.m_musicVolume * 0.25f : m_soundManager.m_musicVolume;
+                m_soundManager.m_musicSource.volume = (m_isPaused) ? m_soundManager.m_musicVolume * 0f : m_soundManager.m_musicVolume;
             }
             Time.timeScale = (m_isPaused) ? 0: 1;
         }

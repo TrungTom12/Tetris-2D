@@ -3365,15 +3365,15 @@ MonoBehaviour:
   m_clearRowSound: {fileID: 8300000, guid: 086252d4a3a297243a6b9bdd621abe1d, type: 3}
   m_moveSound: {fileID: 8300000, guid: 0d8d49ce91f3bd4448caf9074f3886d8, type: 3}
   m_dropSound: {fileID: 8300000, guid: 0d8d49ce91f3bd4448caf9074f3886d8, type: 3}
-  m_gameOverSound: {fileID: 8300000, guid: ef44724ae8f56344fb4e756203a70da7, type: 3}
-  m_levelUpVocalClip: {fileID: 8300000, guid: 698886ccccb470c44aa57942d400bbea, type: 3}
+  m_gameOverSound: {fileID: 8300000, guid: 14277fcda50b93c44915e7d1ed5fe380, type: 3}
+  m_levelUpVocalClip: {fileID: 8300000, guid: 79ad5f3aadcf06644916d33bb72eb703, type: 3}
   m_musicSource: {fileID: 1186825496}
   m_errorSound: {fileID: 0}
   m_vocalClips:
   - {fileID: 8300000, guid: e899933e6d703c04ab0efcbcb75a52b4, type: 3}
   - {fileID: 8300000, guid: 0de902f0b17f76f4b96b8aa7bf481b5f, type: 3}
   - {fileID: 8300000, guid: 902a7f99d82c6d84cb84d2170ad3d606, type: 3}
-  m_gameOverVocalClips: {fileID: 8300000, guid: aa2aee05cc4d77a4f837ae13b45f0aab,
+  m_gameOverVocalClips: {fileID: 8300000, guid: ef44724ae8f56344fb4e756203a70da7,
     type: 3}
   m_musicClips:
   - {fileID: 8300000, guid: 4d222b2b58a42fc49bd8a7d5a834529c, type: 3}
@@ -5026,6 +5026,51 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!1 &1761147923
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1761147925}
+  - component: {fileID: 1761147924}
+  m_Layer: 0
+  m_Name: GhostShape
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1761147924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1761147923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a0b7d9c29ffe094db883ea768ff233a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_color: {r: 1, g: 1, b: 1, a: 0.2}
+--- !u!4 &1761147925
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1761147923}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 540, y: 960, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1838619900
 GameObject:
   m_ObjectHideFlags: 0
