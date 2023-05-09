@@ -5,6 +5,7 @@ using UnityEngine.VFX;
 
 public class GameController : MonoBehaviour
 {
+    GameManager m_gameManager;
     Board m_gameBoard;
     Spawner m_spawner;
     Shape m_activeShape;
@@ -60,6 +61,7 @@ public class GameController : MonoBehaviour
         m_soundManager = GameObject.FindObjectOfType<SoundManager>();
         m_scoreManager = GameObject.FindObjectOfType<ScoreManager>();
         m_ghost = GameObject .FindObjectOfType<Ghost>();    
+        m_gameManager = GameObject.FindObjectOfType<GameManager>();
 
         m_timeToNextKeyLeftRight = Time.time + m_keyRepeatRateLeftRight;
         m_timeToNextKeyDown = Time.time + m_keyRepeatRateDown;
@@ -108,11 +110,13 @@ public class GameController : MonoBehaviour
 
     void Update()
     {
-        if (!m_ghost ||!m_gameBoard || !m_spawner || !m_activeShape || m_gameOver ||!m_soundManager ||!m_scoreManager)
+        if (!m_ghost || !m_gameBoard || !m_spawner || !m_activeShape || m_gameOver || !m_soundManager || !m_scoreManager)
         {
             return;
         }
         PlayerInput();
+        
+        
     }
 
     void LateUpdate()
@@ -224,16 +228,28 @@ public class GameController : MonoBehaviour
         }
     }
 
+    public bool m_isGameOver = false;
     private void GameOver()
     {
         m_activeShape.MoveUp();
         
         Debug.LogWarning(m_activeShape.name + " is over the limit ");
 
+        m_isGameOver = !m_isGameOver;
+
         if (m_gameOverPanel)
         {
             m_gameOverPanel.SetActive(true);
+
+            if (m_soundManager)
+            {
+                m_soundManager.m_musicSource.volume = (m_isGameOver) ? m_soundManager.m_musicVolume * 0f : m_soundManager.m_musicVolume;
+            }
+            Time.timeScale = (m_isGameOver) ? 0 : 1;
+
         }
+
+
 
         PlaySound(m_soundManager.m_gameOverSound, 5f);
         PlaySound(m_soundManager.m_gameOverVocalClips, 5f);
@@ -339,6 +355,9 @@ public class GameController : MonoBehaviour
         }
     }
 
+    public void PlayButton()
+    {
 
+    }
 
 }
