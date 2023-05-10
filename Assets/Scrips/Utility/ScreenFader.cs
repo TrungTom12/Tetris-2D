@@ -69,6 +69,6 @@ public class ScreenFader : MonoBehaviour
             m_graphic.color = tempColor;
 
         }
-        Debug.Log("SCREen Fader  fin ");
+        Debug.Log("SCREen Fader  fin "); 
     }
 }

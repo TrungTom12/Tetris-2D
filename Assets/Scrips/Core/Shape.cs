@@ -5,6 +5,8 @@ using UnityEngine;
 public class Shape : MonoBehaviour
 {
     public bool m_canRotate = true;
+    public Vector3 m_queueOffset;
+
     // khởi tạo hướng di chuyển 
     public void Move(Vector3 moveDirection)
     {

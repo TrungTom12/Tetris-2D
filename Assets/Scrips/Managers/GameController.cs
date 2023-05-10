@@ -61,7 +61,7 @@ public class GameController : MonoBehaviour
         m_soundManager = GameObject.FindObjectOfType<SoundManager>();
         m_scoreManager = GameObject.FindObjectOfType<ScoreManager>();
         m_ghost = GameObject .FindObjectOfType<Ghost>();    
-        m_gameManager = GameObject.FindObjectOfType<GameManager>();
+        //m_gameManager = GameObject.FindObjectOfType<GameManager>();
 
         m_timeToNextKeyLeftRight = Time.time + m_keyRepeatRateLeftRight;
         m_timeToNextKeyDown = Time.time + m_keyRepeatRateDown;
