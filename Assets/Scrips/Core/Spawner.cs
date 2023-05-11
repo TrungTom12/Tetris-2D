@@ -5,14 +5,24 @@ using UnityEngine;
 
 public class Spawner : MonoBehaviour
 {
-    public Shape[] m_allShape;
+    public Shape[] m_allShapes;
+
+    void Start()
+    {
+        InitQueue();
+
+        Vector2 originalVector = new Vector2(4.3f, 1.3f);
+        Vector2 newVector = Vectorf.Round(originalVector);
+
+        Debug.Log(newVector.ToString());
+    }
 
     Shape GetRandomShape() //Khởi tạo hàm random , lấy random các shape 
     {
-        int i = Random.Range(0, m_allShape.Length);
-        if (m_allShape[i])
+        int i = Random.Range(0, m_allShapes.Length);
+        if (m_allShapes[i])
         {
-            return m_allShape[i];
+            return m_allShapes[i];
         }
         else
         {
@@ -42,8 +52,9 @@ public class Spawner : MonoBehaviour
         }
     }
 
-    public Transform[] m_queueXform = new Transform[3];
+    public Transform[] m_queueXforms = new Transform[3];
     Shape[] m_queueShapes = new Shape[3];
+
     float m_queueScale = 0.4f;
 
     void InitQueue()
@@ -63,7 +74,7 @@ public class Spawner : MonoBehaviour
             if (!m_queueShapes[i])
             {
                 m_queueShapes[i] = Instantiate(GetRandomShape(), transform.position, Quaternion.identity) as Shape;
-                m_queueShapes[i].transform.position = m_queueXform[i].position + m_queueShapes[i].m_queueOffset;
+                m_queueShapes[i].transform.position = m_queueXforms[i].position + m_queueShapes[i].m_queueOffset;
                 m_queueShapes[i].transform.localScale = new Vector3(m_queueScale, m_queueScale, m_queueScale);
             }
         }    
@@ -80,8 +91,8 @@ public class Spawner : MonoBehaviour
 
         for (int i = 1; i < m_queueShapes.Length; i++)
         {
-            m_queueShapes[i - 1] = m_queueShapes[i];
-            m_queueShapes[i - 1].transform.position = m_queueXform[i-1].position + m_queueShapes[i].m_queueOffset;
+            m_queueShapes[i-1] = m_queueShapes[i];
+            m_queueShapes[i-1].transform.position = m_queueXforms[i-1].position + m_queueShapes[i].m_queueOffset;
         }
 
         m_queueShapes[m_queueShapes.Length - 1] = null;
@@ -91,15 +102,7 @@ public class Spawner : MonoBehaviour
         return firstShape;
     }
 
-    void Start()
-    {
-        InitQueue();
-        
-        //Vector2 originalVector = new Vector2(4.3f, 1.3f);
-        //Vector2 newVector = Vectorf.Round(originalVector);
-
-        //Debug.Log(newVector.ToString());
-    }
+    
 
     void Update()
     {

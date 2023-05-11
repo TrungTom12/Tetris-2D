@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VFX;
+using UnityEngine.UI;
+
 
 public class GameController : MonoBehaviour
 {
@@ -12,7 +14,7 @@ public class GameController : MonoBehaviour
     SoundManager m_soundManager;
     ScoreManager m_scoreManager;
     Ghost m_ghost;
-
+    Hold m_hold;
     public float m_dropInterval = 0.1f;
     float m_dropIntervalModded;
 
@@ -61,7 +63,7 @@ public class GameController : MonoBehaviour
         m_soundManager = GameObject.FindObjectOfType<SoundManager>();
         m_scoreManager = GameObject.FindObjectOfType<ScoreManager>();
         m_ghost = GameObject .FindObjectOfType<Ghost>();    
-        //m_gameManager = GameObject.FindObjectOfType<GameManager>();
+        m_hold = GameObject.FindObjectOfType<Hold>();
 
         m_timeToNextKeyLeftRight = Time.time + m_keyRepeatRateLeftRight;
         m_timeToNextKeyDown = Time.time + m_keyRepeatRateDown;
@@ -103,6 +105,10 @@ public class GameController : MonoBehaviour
             m_pausePanel.SetActive(false);
         }
 
+        if (diagnosticText)
+        {
+            diagnosticText.text = "";
+        }
         m_dropIntervalModded = m_dropInterval;
 
 
@@ -124,100 +130,156 @@ public class GameController : MonoBehaviour
         m_ghost.DrawGhost(m_activeShape, m_gameBoard);
     }
 
+    enum Direction {none,left,right,up,down };
+    Direction m_swipeDirection = Direction.none;
+    Direction m_swipeEndDirection = Direction.none; 
     private void PlayerInput() // Điều khiển sử dụng tap || hold các nút để di chuyển trái phải 
     {
+        //Sử dụng cho PC
         if ((Input.GetButton("MoveRight") && (Time.time > m_timeToNextKeyLeftRight)) || Input.GetButtonDown("MoveRight"))
         {
-            m_activeShape.MoveRight();
-            m_timeToNextKeyLeftRight = Time.time + m_keyRepeatRateLeftRight;
-
-            
-
-            if (!m_gameBoard.InValidPosition(m_activeShape))
-            {
-                m_activeShape.MoveLeft();
-                PlaySound(m_soundManager.m_errorSound,0.5f);
-            }   
-            else
-            {
-                PlaySound(m_soundManager.m_moveSound,0.5f);  //chạy âm thanh khi di chuyển 
-            }
+            MoveRight();
         }
 
         else if ((Input.GetButton("MoveLeft") && (Time.time > m_timeToNextKeyLeftRight )) || Input.GetButtonDown("MoveLeft"))
         {
-            m_activeShape.MoveLeft();
-            m_timeToNextKeyLeftRight = Time.time + m_keyRepeatRateLeftRight;
-
-         
-
-            if (!m_gameBoard.InValidPosition(m_activeShape))
-            {
-                m_activeShape.MoveRight();
-                PlaySound(m_soundManager.m_errorSound, 0.5f);
-            }
-            else
-            {
-                PlaySound(m_soundManager.m_moveSound, 0.5f);  //chạy âm thanh khi di chuyển 
-            }
-        }           
+            MoveLeft();
+        }
 
         else if (Input.GetButtonDown("Rotate") && (Time.time > m_timeToNextKeyRotate))
         {
-            //m_activeShape.RotateRight();  
-            m_activeShape.RotateClockwise(m_clockwise);
-            m_timeToNextKeyRotate = Time.time + m_keyRepeatRateRotate;
-
-
-            if (!m_gameBoard.InValidPosition(m_activeShape))
-            {
-                m_activeShape.RotateLeft();
-                PlaySound(m_soundManager.m_errorSound, 0.5f);
-            }
-            else
-            {
-                PlaySound(m_soundManager.m_moveSound, 0.5f);  //chạy âm thanh khi di chuyển 
-            }
+            Rotate();
         }
 
         else if ((Input.GetButton("MoveDown") && (Time.time > m_timeToNextKeyDown)) || (Time.time > m_timeToDrop)) //Khi shape chạm đến đáy board sẽ dừng lại 
         {
-            m_timeToDrop = Time.time + m_dropIntervalModded;
-            //
-            m_timeToNextKeyDown = Time.time + m_keyRepeatRateDown;
-            // khởi tạo thời gian rơi = thời gian trong 1 fram + thời gian thả 
-            m_timeToDrop = Time.time + m_dropInterval;
-            // Sau khi shape di chuyển xuống dưới cùng của board , vào hàm mà t/m khớp thì moveup 
-            m_activeShape.MoveDown();
+            MoveDown();
 
-            //PlaySound(m_soundManager.m_dropSound, 0.75f); //chạy âm thanh khi di chuyển 
-
-            if (!m_gameBoard.InValidPosition(m_activeShape))
-            {
-                if (m_gameBoard.IsOverLimit(m_activeShape))
-                {
-                    GameOver();
-                }
-                else  
-                {
-                    LandShape();
-                }
-            }
-   
         }
+
+        //Sử dụng cho Smartphone 
+        else if ((m_swipeDirection == Direction.right && Time.time > m_timeToNextKeyLeftRight) || m_swipeEndDirection == Direction.right)
+        {
+            MoveRight();
+            m_swipeDirection = Direction.none;
+            m_swipeEndDirection = Direction.none;
+        }
+
+        else if ((m_swipeDirection == Direction.left && Time.time > m_timeToNextKeyLeftRight) || m_swipeEndDirection == Direction.left)
+        {
+            MoveLeft();
+            m_swipeDirection = Direction.none;
+            m_swipeEndDirection = Direction.none;
+        }
+
+        else if (m_swipeEndDirection == Direction.up)
+        {
+            Rotate();
+            m_swipeEndDirection = Direction.none;
+        }
+
+        else if (m_swipeDirection == Direction.down && Time.time > m_timeToNextKeyDown)
+        {
+            MoveDown();
+            m_swipeDirection = Direction.none;
+        }
+
+        //Active button
         else if (Input.GetButtonDown("RotateChange")) // Gán trực tiếp nút Rotate
         {
             ToogleRotDirection();
         }
+
         else if (Input.GetButtonDown("Pause")) // Gán trực tiếp nút Pause
         {
             TogglePause();
         }
+
         else if (Input.GetButtonDown("Restart"))
         {
             Restart();
         }
 
+    }
+
+    //Move
+    private void MoveDown()
+    {
+        m_timeToDrop = Time.time + m_dropIntervalModded;
+        //
+        m_timeToNextKeyDown = Time.time + m_keyRepeatRateDown;
+        // khởi tạo thời gian rơi = thời gian trong 1 fram + thời gian thả 
+        m_timeToDrop = Time.time + m_dropInterval;
+        // Sau khi shape di chuyển xuống dưới cùng của board , vào hàm mà t/m khớp thì moveup 
+        m_activeShape.MoveDown();
+
+        //PlaySound(m_soundManager.m_dropSound, 0.75f); //chạy âm thanh khi di chuyển 
+
+        if (!m_gameBoard.InValidPosition(m_activeShape))
+        {
+            if (m_gameBoard.IsOverLimit(m_activeShape))
+            {
+                GameOver();
+            }
+            else
+            {
+                LandShape();
+            }
+        }
+    }
+
+    private void Rotate()
+    {
+        //m_activeShape.RotateRight();  
+        m_activeShape.RotateClockwise(m_clockwise);
+        m_timeToNextKeyRotate = Time.time + m_keyRepeatRateRotate;
+
+
+        if (!m_gameBoard.InValidPosition(m_activeShape))
+        {
+            m_activeShape.RotateLeft();
+            PlaySound(m_soundManager.m_errorSound, 0.5f);
+        }
+        else
+        {
+            PlaySound(m_soundManager.m_moveSound, 0.5f);  //chạy âm thanh khi di chuyển 
+        }
+    }
+
+    private void MoveLeft()
+    {
+        m_activeShape.MoveLeft();
+        m_timeToNextKeyLeftRight = Time.time + m_keyRepeatRateLeftRight;
+
+
+
+        if (!m_gameBoard.InValidPosition(m_activeShape))
+        {
+            m_activeShape.MoveRight();
+            PlaySound(m_soundManager.m_errorSound, 0.5f);
+        }
+        else
+        {
+            PlaySound(m_soundManager.m_moveSound, 0.5f);  //chạy âm thanh khi di chuyển 
+        }
+    }
+
+    private void MoveRight()
+    {
+        m_activeShape.MoveRight();
+        m_timeToNextKeyLeftRight = Time.time + m_keyRepeatRateLeftRight;
+
+
+
+        if (!m_gameBoard.InValidPosition(m_activeShape))
+        {
+            m_activeShape.MoveLeft();
+            PlaySound(m_soundManager.m_errorSound, 0.5f);
+        }
+        else
+        {
+            PlaySound(m_soundManager.m_moveSound, 0.5f);  //chạy âm thanh khi di chuyển 
+        }
     }
 
     void PlaySound(AudioClip clip , float volMultiplier)
@@ -241,19 +303,16 @@ public class GameController : MonoBehaviour
         {
             m_gameOverPanel.SetActive(true);
 
-            if (m_soundManager)
-            {
-                m_soundManager.m_musicSource.volume = (m_isGameOver) ? m_soundManager.m_musicVolume * 0f : m_soundManager.m_musicVolume;
-            }
-            Time.timeScale = (m_isGameOver) ? 0 : 1;
-
         }
-
-
 
         PlaySound(m_soundManager.m_gameOverSound, 5f);
         PlaySound(m_soundManager.m_gameOverVocalClips, 5f);
 
+        if (m_soundManager)
+        {
+            m_soundManager.m_musicSource.volume = (m_isGameOver) ? m_soundManager.m_musicVolume * 0f : m_soundManager.m_musicVolume;
+        }
+        Time.timeScale = (m_isGameOver) ? 0 : 1;
         //PlaySound(m_soundManager.m_dropSound, 0.75f); //chạy âm thanh khi di chuyển 
         // set the gameOver condition to true
         m_gameOver = true;
@@ -314,16 +373,14 @@ public class GameController : MonoBehaviour
         //PlaySound(m_soundManager.m_clearRowSound, 3f); // 
     }
 
+    //Button
+
     public void Restart()
     {
         Time.timeScale = 1f;
         Debug.Log("Restarted");
         Application.LoadLevel(Application.loadedLevel);
     }
-
-
-
-    //Button
 
     public void ToogleRotDirection() // gán vào button Rotate 
     {
@@ -354,10 +411,56 @@ public class GameController : MonoBehaviour
             Time.timeScale = (m_isPaused) ? 0: 1;
         }
     }
-
-    public void PlayButton()
+    
+    public void Hold()
     {
-
+        m_hold.Catch(m_activeShape);
+        m_activeShape = m_spawner.SpawnerShape();
     }
 
-}
+    public Text diagnosticText;
+    void OnEnable()
+    {
+        TouchController.SwipeEvent += SwipeHandler;
+        TouchController.SwipeEventEnd += SwipeEndHandler;
+    }
+     
+    private void OnDisable()
+    {
+        TouchController.SwipeEvent -= SwipeHandler;
+        TouchController.SwipeEventEnd -= SwipeEndHandler;
+    }
+
+    void SwipeHandler(Vector2 swipeMovement)
+    {
+        //if (diagnosticText)
+        //{
+        //    diagnosticText.text = "SwipeEvent Detected";
+        //}
+        m_swipeDirection = GetDirection(swipeMovement);
+    }
+
+    void SwipeEndHandler(Vector2 swipeMovement)
+    {
+        //if (diagnosticText)
+        //{
+        //    diagnosticText.text = "";
+        //}
+        m_swipeEndDirection = GetDirection(swipeMovement);
+    }
+
+    Direction GetDirection(Vector2 swipeMovement)
+    {
+        Direction swipeDir = Direction.none;
+
+        if (Mathf.Abs(swipeMovement.x) > Mathf.Abs(swipeMovement.y))
+        {
+            swipeDir = (swipeMovement.x >= 0) ? Direction.right : Direction.left;
+        }
+        else
+        {
+            swipeDir = (swipeMovement.y >= 0) ? Direction.up : Direction.down;
+        }
+        return swipeDir;
+    }
+} 
